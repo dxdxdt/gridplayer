@@ -55,13 +55,13 @@ class ResolverPattern(BaseModel):
 
 
 class ResolverPatterns(BaseModel):
-    __root__: List[ResolverPattern]
+    RootModel: List[ResolverPattern]
 
     def __iter__(self) -> Iterable[ResolverPattern]:
-        return iter(self.__root__)
+        return iter(self.RootModel)
 
     def get_resolver(self, url: str) -> Optional[URLResolver]:
-        for pattern in self.__root__:
+        for pattern in self.RootModel:
             if pattern.is_match(url):
                 return pattern.resolver
 

@@ -77,7 +77,7 @@ _default_settings = {
     "internal/fake_overlay_invisibility": False,
     "streaming/hls_via_streamlink": True,
     "streaming/resolver_priority": URLResolver.STREAMLINK,
-    "streaming/resolver_priority_patterns": ResolverPatterns(__root__=[]),
+    "streaming/resolver_priority_patterns": ResolverPatterns(RootModel = []),
     "recent_list_videos": RecentListVideos(),
     "recent_list_playlists": RecentListPlaylists(),
 }

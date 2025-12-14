@@ -25,10 +25,7 @@ def extract_mime_uris(dnd_data: QMimeData) -> List[str]:
 
     if dnd_data.hasUrls():
         for url in dnd_data.urls():
-            if url.isLocalFile():
-                uris.append(url.toLocalFile())
-            else:
-                uris.append(url.url())
+            uris.append(url.url())
 
     elif dnd_data.hasText():
         dnd_text = dnd_data.text().splitlines()

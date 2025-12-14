@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Iterable, List, Optional
 from uuid import uuid4
@@ -5,7 +6,7 @@ from uuid import uuid4
 from pydantic import UUID4, BaseModel, Field, ValidationError, confloat  # noqa: WPS450
 from pydantic.color import Color
 
-from gridplayer.models.video_uri import AbsoluteFilePath, VideoURI, VideoURL
+from gridplayer.models.video_uri import VideoURI, VideoURL
 from gridplayer.params.static import (
     AudioChannelMode,
     VideoAspect,
@@ -26,13 +27,13 @@ class Video(BaseModel):
     uri: VideoURI
 
     # Presentation
-    title: Optional[str]
+    title: Optional[str] = None
     color: Color = Color("white")
 
     # Seekable video
     current_position: int = 0
-    loop_start: Optional[int]
-    loop_end: Optional[int]
+    loop_start: Optional[int] = None
+    loop_end: Optional[int] = None
 
     repeat_mode: VideoRepeat = default_field("video_defaults/repeat")
     is_start_random: bool = default_field("video_defaults/random_loop")
@@ -52,8 +53,8 @@ class Video(BaseModel):
     auto_reload_timer_min: int = default_field("video_defaults/auto_reload_timer")
 
     # Tracks
-    audio_track_id: Optional[int]
-    video_track_id: Optional[int]
+    audio_track_id: Optional[int] = None
+    video_track_id: Optional[int] = None
 
     audio_channel_mode: AudioChannelMode = default_field("video_defaults/audio_mode")
 
@@ -66,7 +67,7 @@ class Video(BaseModel):
 
     @property
     def is_local_file(self):
-        return isinstance(self.uri, AbsoluteFilePath)
+        return self.uri.scheme == "file"
 
     @property
     def is_http_url(self):
@@ -83,11 +84,13 @@ def filter_video_uris(uris: Iterable[str]) -> List[Video]:
 
     for uri in uris:
         try:
-            video = Video(uri=uri)
-        except ValidationError:
+            video = Video(uri=VideoURL(uri))
+        except ValidationError as e:
+            logging.getLogger("video").error(str(e))
             try:
                 video = _convert_relative_path(uri)
-            except ValidationError:
+            except ValidationError as e:
+                logging.getLogger("video").error(str(e))
                 continue
 
         valid_urls.append(video)
